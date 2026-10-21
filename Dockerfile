@@ -2,10 +2,12 @@
 
 ARG CUDA_IMAGE=nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
 ARG IMMICH_VERSION=v3.3.5
+ARG IMMICH_MODEL_COMMIT=8bf3fd1b44b0c8608f52fb6e50ddff52826576d8
 ARG ONNXRUNTIME_GPU_VERSION=1.31.0
 
 FROM ${CUDA_IMAGE} AS builder
 ARG IMMICH_VERSION
+ARG IMMICH_MODEL_COMMIT
 ARG ONNXRUNTIME_GPU_VERSION
 ENV DEBIAN_FRONTEND=noninteractive \
     VIRTUAL_ENV=/opt/venv \
@@ -19,7 +21,7 @@ RUN python3 -m venv /opt/venv && \
 RUN git clone --depth 1 --branch "${IMMICH_VERSION}" \
       https://github.com/immich-app/immich.git /src/immich
 RUN pip install --no-cache-dir \
-      "immich-model @ git+https://github.com/immich-app/ml-models.git@8bf3fd1b44b0c8608f52fb6e50ddff52826576d8" && \
+      "immich-model @ git+https://github.com/immich-app/ml-models.git@${IMMICH_MODEL_COMMIT}" && \
     pip install --no-cache-dir "/src/immich/machine-learning" && \
     pip install --no-cache-dir "onnxruntime-gpu==${ONNXRUNTIME_GPU_VERSION}"
 RUN python - <<'PY'

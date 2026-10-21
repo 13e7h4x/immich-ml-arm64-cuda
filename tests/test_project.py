@@ -12,6 +12,8 @@ class ProjectContractTests(unittest.TestCase):
         text = (ROOT / "Dockerfile").read_text()
         self.assertIn("nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04", text)
         self.assertIn("ARG ONNXRUNTIME_GPU_VERSION=1.31.0", text)
+        self.assertIn("ARG IMMICH_MODEL_COMMIT=", text)
+        self.assertIn('ml-models.git@${IMMICH_MODEL_COMMIT}', text)
         self.assertIn('onnxruntime-gpu==${ONNXRUNTIME_GPU_VERSION}', text)
         self.assertIn("CMD [\"python\", \"-m\", \"immich_ml\"]", text)
         self.assertIn("chmod 0755 /cache", text)

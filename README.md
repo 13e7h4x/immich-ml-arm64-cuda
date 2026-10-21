@@ -39,6 +39,7 @@ Override pinned versions when testing a newer release:
 ```bash
 docker build \
   --build-arg IMMICH_VERSION=v3.3.5 \
+  --build-arg IMMICH_MODEL_COMMIT=8bf3fd1b44b0c8608f52fb6e50ddff52826576d8 \
   --build-arg ONNXRUNTIME_GPU_VERSION=1.31.0 \
   -t immich-ml-arm64-cuda:v3.3.5 .
 ```
