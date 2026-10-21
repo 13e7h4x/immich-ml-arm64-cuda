@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: immich-ml-arm64-cuda-operator-smoke
+spec:
+  restartPolicy: Never
+  runtimeClassName: nvidia
+  containers:
+    - name: smoke
+      image: nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
+      imagePullPolicy: IfNotPresent
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+      command: ["bash", "-lc"]
+      args:
+        - |
+          set -euo pipefail
+          sed -i 's|http://ports.ubuntu.com|https://ports.ubuntu.com|' /etc/apt/sources.list.d/ubuntu.sources
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-pip python3-venv
+          python3 -m venv /opt/test
+          /opt/test/bin/pip install --no-cache-dir numpy onnx onnxruntime-gpu==1.31.0
+          /opt/test/bin/python - <<'PY'
+          import numpy as np
+          import onnxruntime as ort
+          from onnx import TensorProto, helper
+
+          assert "CUDAExecutionProvider" in ort.get_available_providers()
+          x = helper.make_tensor_value_info("x", TensorProto.FLOAT, [2, 2])
+          y = helper.make_tensor_value_info("y", TensorProto.FLOAT, [2, 2])
+          z = helper.make_tensor_value_info("z", TensorProto.FLOAT, [2, 2])
+          model = helper.make_model(
+              helper.make_graph([helper.make_node("MatMul", ["x", "y"], ["z"])], "gpu-operator-smoke", [x, y], [z]),
+              opset_imports=[helper.make_opsetid("", 13)],
+          )
+          model.ir_version = 9
+          session = ort.InferenceSession(model.SerializeToString(), providers=["CUDAExecutionProvider"])
+          a = np.array([[1, 2], [3, 4]], dtype=np.float32)
+          b = np.array([[5, 6], [7, 8]], dtype=np.float32)
+          result = session.run(None, {"x": a, "y": b})[0]
+          np.testing.assert_allclose(result, a @ b)
+          print("GPU_OPERATOR_CUDA_INFERENCE_OK", result.tolist(), flush=True)
+          PY
