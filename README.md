@@ -1,8 +1,8 @@
-# Immich ML ARM64 CUDA
+# Immich GPU Acceleration for NVIDIA DGX Spark (ARM64 CUDA)
 
-Experimental, reproducible ARM64 CUDA image for Immich machine learning on NVIDIA SBSA systems such as the DGX Spark GB10.
+A reproducible GPU-accelerated Immich machine-learning container for NVIDIA DGX Spark GB10, Linux ARM64, CUDA 13 and NVIDIA GPU Operator.
 
-Immich publishes a CUDA machine-learning image for `linux/amd64`. This project builds the same Immich ML service for `linux/arm64` with CUDA 13, cuDNN 9 and the official ARM64 `onnxruntime-gpu` wheel.
+Immich publishes a CUDA machine-learning image for `linux/amd64`, but not for DGX Spark's `linux/arm64` architecture. This project fills that gap using the official ARM64 `onnxruntime-gpu` wheel and includes verified Docker and Kubernetes deployment paths.
 
 ## Verified platform
 
